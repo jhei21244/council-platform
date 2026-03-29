@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Council Platform{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="material-symbols-outlined brand-icon">account_balance</span>
+      <div>
+        <div class="brand-name">Council Platform</div>
+        <div class="brand-sub">Multi-agent deliberation</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">MODE</div>
+      <a href="/" class="nav-item {% if page == 'home' %}active{% endif %}">
+        <span class="material-symbols-outlined">home</span><span>Platform Home</span>
+      </a>
+      <a href="/selves" class="nav-item nav-selves {% if page == 'selves' %}active{% endif %}">
+        <span class="material-symbols-outlined">self_improvement</span><span>Council of Selves</span>
+      </a>
+      <a href="/ideas" class="nav-item nav-ideas {% if page == 'ideas' %}active{% endif %}">
+        <span class="material-symbols-outlined">lightbulb</span><span>Idea Council</span>
+      </a>
+      <a href="/lab" class="nav-item nav-lab {% if page == 'lab' %}active{% endif %}">
+        <span class="material-symbols-outlined">science</span><span>Innovation Lab</span>
+      </a>
+      <a href="/builder" class="nav-item nav-custom {% if page == 'builder' %}active{% endif %}">
+        <span class="material-symbols-outlined">tune</span><span>Custom Council</span>
+      </a>
+      <div class="nav-divider"></div>
+      <div class="nav-section-label">EXPLORE</div>
+      <a href="/agents" class="nav-item {% if page == 'agents' %}active{% endif %}">
+        <span class="material-symbols-outlined">group_work</span><span>Agent Pool</span>
+      </a>
+      <a href="/sessions" class="nav-item {% if page == 'sessions' %}active{% endif %}">
+        <span class="material-symbols-outlined">history</span><span>All Sessions</span>
+      </a>
+    </nav>
+  </aside>
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+  <nav class="mobile-nav">
+    <a href="/" class="mobile-nav-item {% if page == 'home' %}active{% endif %}">
+      <span class="material-symbols-outlined">home</span><span>Home</span>
+    </a>
+    <a href="/selves" class="mobile-nav-item">
+      <span class="material-symbols-outlined">self_improvement</span><span>Selves</span>
+    </a>
+    <a href="/ideas" class="mobile-nav-item">
+      <span class="material-symbols-outlined">lightbulb</span><span>Ideas</span>
+    </a>
+    <a href="/lab" class="mobile-nav-item">
+      <span class="material-symbols-outlined">science</span><span>Lab</span>
+    </a>
+    <a href="/sessions" class="mobile-nav-item {% if page == 'sessions' %}active{% endif %}">
+      <span class="material-symbols-outlined">history</span><span>History</span>
+    </a>
+  </nav>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

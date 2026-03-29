@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}All Sessions — Council Platform{% endblock %}
+
+{% block content %}
+<div class="sessions-page">
+  <h1>All Deliberations</h1>
+
+  <!-- Filter tabs -->
+  <div class="filter-tabs">
+    <a href="/sessions" class="filter-tab {% if not filter_type %}active{% endif %}">
+      <span class="material-symbols-outlined" style="font-size:0.9rem">apps</span> All
+    </a>
+    <a href="/sessions?council_type=selves" class="filter-tab {% if filter_type == 'selves' %}active{% endif %}">
+      🪞 Selves
+    </a>
+    <a href="/sessions?council_type=idea" class="filter-tab {% if filter_type == 'idea' %}active{% endif %}">
+      ⚔️ Ideas
+    </a>
+    <a href="/sessions?council_type=innovation" class="filter-tab {% if filter_type == 'innovation' %}active{% endif %}">
+      🔬 Lab
+    </a>
+    <a href="/sessions?council_type=custom" class="filter-tab {% if filter_type == 'custom' %}active{% endif %}">
+      🎛️ Custom
+    </a>
+  </div>
+
+  {% if sessions %}
+  <div class="sessions-list">
+    {% for session in sessions %}
+    <a href="/sessions/{{ session.id }}" class="session-item">
+      <div class="session-badge badge-{{ session.council_type }}">
+        {{ council_type_meta(session.council_type).icon }}
+      </div>
+      <div class="session-info">
+        <div class="session-title">{{ session.title or session.input_text[:60] }}</div>
+        <div class="session-meta">
+          {{ council_type_meta(session.council_type).label }}
+          · {{ session.created_at[:16] if session.created_at else '' }}
+        </div>
+      </div>
+      <span class="session-status-pill {% if session.status == 'completed' %}pill-completed{% elif session.status == 'active' %}pill-active{% else %}pill-error{% endif %}">
+        {{ session.status }}
+      </span>
+      <div class="session-arrow">
+        <span class="material-symbols-outlined" style="font-size:1.1rem">chevron_right</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <span class="material-symbols-outlined">forum</span>
+    <p>No deliberations yet{% if filter_type %} for this council type{% endif %}.</p>
+    <p style="margin-top:0.5rem"><a href="/" style="color:var(--primary);font-weight:600">Start one →</a></p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

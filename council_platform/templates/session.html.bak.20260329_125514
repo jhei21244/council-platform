@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %}{{ session.title or 'Deliberation' }} — Council Platform{% endblock %}
+
+{% block extra_head %}
+<style>
+  :root {
+    --council-accent: {{ meta.color }};
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="session-page">
+  <!-- Session Header -->
+  <div class="session-header">
+    <div class="session-header-inner">
+      <a href="/sessions" class="back-link">
+        <span class="material-symbols-outlined">arrow_back</span>
+        All Sessions
+      </a>
+      
+      <div class="session-meta-row">
+        <div class="council-badge" style="background: {{ meta.color }}20; color: {{ meta.color }}; border-color: {{ meta.color }}40">
+          {{ meta.icon }} {{ meta.label }}
+        </div>
+        <div class="session-status status-{{ session.status }}">
+          <span class="status-dot"></span>
+          {{ session.status }}
+        </div>
+        {% if total_cost > 0 %}
+        <div class="session-cost">
+          <span class="material-symbols-outlined">toll</span>
+          {{ total_cost | format_cost }}
+        </div>
+        {% endif %}
+      </div>
+      
+      <h1 class="session-title">{{ session.title or session.input_text[:80] }}</h1>
+      <p class="session-input">{{ session.input_text }}</p>
+      
+      {% if session.status == 'completed' %}
+      <div class="session-actions">
+        <a href="/chain/{{ session.id }}" class="btn btn-chain">
+          <span class="material-symbols-outlined">link</span>
+          Chain → Next Council
+        </a>
+        <button class="btn btn-outline" onclick="window.print()">
+          <span class="material-symbols-outlined">download</span>
+          Export
+        </button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Stream status (shows while active) -->
+  {% if session.status == 'active' %}
+  <div class="stream-status" id="stream-status">
+    <div class="stream-spinner"></div>
+    <span id="stream-status-text">Convening the council...</span>
+  </div>
+  {% endif %}
+
+  <!-- Agent Cards Grid -->
+  <div class="session-content">
+    <div class="agents-grid" id="agents-grid">
+      {% if turns %}
+        {% for turn in turns %}
+        <div class="agent-card card-complete" data-agent-id="{{ turn.agent_id }}" data-phase="{{ turn.phase }}">
+          <div class="agent-card-header">
+            <div class="agent-card-icon">{{ turn.agent_icon or '🤖' }}</div>
+            <div class="agent-card-meta">
+              <div class="agent-card-name">{{ turn.agent_name or turn.agent_id }}</div>
+              <div class="agent-card-function">{{ turn.cognitive_function or 'agent' }}</div>
+            </div>
+            <div class="agent-card-indicators">
+              {% if turn.model_used %}
+              <span class="model-indicator" title="{{ turn.model_used }}">
+                {% if 'gemini' in (turn.model_used or '') %}◈{% else %}◉{% endif %}
+              </span>
+              {% endif %}
+              {% if turn.phase and turn.phase > 1 %}
+              <span class="phase-badge">Ph.{{ turn.phase }}</span>
+              {% endif %}
+            </div>
+          </div>
+          
+          {% if turn.confidence is not none %}
+          <div class="confidence-bar-wrapper">
+            <div class="confidence-bar" style="width: {{ (turn.confidence * 100)|int }}%; background: {{ meta.color }}"></div>
+          </div>
+          <div class="confidence-label">{{ (turn.confidence * 100)|int }}% confidence</div>
+          {% endif %}
+          
+          <div class="agent-card-content markdown-content">{{ turn.content }}</div>
+          
+          <div class="agent-card-footer">
+            {% if turn.cost_usd is not none and turn.cost_usd > 0 %}
+            <span class="agent-cost">{{ turn.cost_usd | format_cost }}</span>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <!-- Placeholder cards for active session — will be populated by SSE -->
+        {% set agent_placeholders = ['Agent 1', 'Agent 2', 'Agent 3', 'Agent 4', 'Agent 5'] %}
+        {% for name in agent_placeholders %}
+        <div class="agent-card card-waiting">
+          <div class="agent-card-header">
+            <div class="agent-card-icon">⏳</div>
+            <div class="agent-card-meta">
+              <div class="agent-card-name">Waiting...</div>
+            </div>
+          </div>
+          <div class="agent-card-content">
+            <div class="typing-dots"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+    
+    <!-- Phase indicators will be injected here for streaming sessions -->
+    <div id="phase-markers"></div>
+    
+    <!-- Synthesis section -->
+    {% if synthesis %}
+    <div class="synthesis-section">
+      <div class="synthesis-header">
+        <span class="material-symbols-outlined">auto_awesome</span>
+        <h2>Synthesis</h2>
+        {% if synthesis.cost_usd %}
+        <span class="synthesis-cost">{{ synthesis.cost_usd | format_cost }}</span>
+        {% endif %}
+      </div>
+      <div class="synthesis-content markdown-content">{{ synthesis.content }}</div>
+    </div>
+    {% elif session.status == 'active' %}
+    <div class="synthesis-section synthesis-pending" id="synthesis-section">
+      <div class="synthesis-header">
+        <span class="material-symbols-outlined">auto_awesome</span>
+        <h2>Synthesis</h2>
+      </div>
+      <div id="synthesis-content" class="synthesis-content">
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+    {% endif %}
+    
+    <!-- Chain suggestion (for completed sessions) -->
+    {% if session.status == 'completed' %}
+    <div class="chain-suggestion">
+      <div class="chain-suggestion-inner">
+        <span class="material-symbols-outlined chain-icon">link</span>
+        <div>
+          <div class="chain-title">Take this further</div>
+          <div class="chain-desc">Chain to the next council — let this synthesis seed a new deliberation</div>
+        </div>
+        <a href="/chain/{{ session.id }}" class="btn btn-chain">
+          Chain → 
+          {% if session.council_type == 'innovation' %}Idea Council
+          {% elif session.council_type == 'idea' %}Council of Selves
+          {% else %}Innovation Lab
+          {% endif %}
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if session.status == 'active' %}
+<script>
+  const SESSION_ID = "{{ session.id }}";
+  const COUNCIL_ACCENT = "{{ meta.color }}";
+</script>
+<script src="/static/js/stream.js"></script>
+{% endif %}
+<script src="/static/js/markdown.js"></script>
+{% endblock %}

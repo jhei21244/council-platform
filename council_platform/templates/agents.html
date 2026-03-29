@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Agent Pool — Council Platform{% endblock %}
+
+{% block content %}
+<div class="agents-page">
+  <h1>Agent Pool</h1>
+  <p class="page-subtitle">
+    {{ agents|length }} archetypes across {{ groups|length }} cognitive functions.
+    Every agent can serve in any council.
+  </p>
+
+  {% for fn, fn_agents in groups.items() %}
+  {% set fl = function_labels.get(fn, {"label": fn, "description": "", "icon": "🤖"}) %}
+  <div class="agent-group">
+    <div class="agent-group-header">
+      <span class="agent-group-icon">{{ fl.icon }}</span>
+      <span class="agent-group-label">{{ fl.label }}</span>
+      <span class="agent-group-badge">{{ fn_agents|length }}</span>
+      {% if fl.description %}
+      <span class="agent-group-desc">{{ fl.description }}</span>
+      {% endif %}
+    </div>
+
+    <div class="agent-pool-grid">
+      {% for agent in fn_agents %}
+      <div class="agent-pool-card">
+        <div class="agent-pool-card-header">
+          <div class="agent-avatar-circle">{{ agent.icon or '🤖' }}</div>
+          <div>
+            <div class="agent-pool-card-name">{{ agent.name }}</div>
+            <div class="agent-pool-card-home">{{ agent.home_council }} · {{ agent.default_model }}</div>
+          </div>
+        </div>
+        <div class="agent-pool-card-desc">{{ agent.description }}</div>
+        <span class="fn-badge">{{ fn }}</span>
+        {% if agent.tags %}
+        <div class="agent-pool-card-tags">
+          {% for tag in parse_tags(agent.tags) %}
+          <span class="agent-tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

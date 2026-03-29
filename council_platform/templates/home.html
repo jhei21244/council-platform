@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}Council Platform — What's on your mind?{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="mb-6">
+  <h1 class="text-3xl font-headline font-extrabold tracking-tight text-on-surface mb-1">
+    {% if council_label %}{{ council_label }}{% else %}Good morning, Julian.{% endif %}
+  </h1>
+  <p class="text-on-surface-variant text-base max-w-xl">
+    {% if council_prompt %}{{ council_prompt }}{% else %}Your councils are gathered and ready.{% endif %}
+  </p>
+</div>
+
+<!-- Search / Smart Input Bar -->
+<div class="mb-6">
+  <form method="post" action="/deliberate" id="deliberation-form">
+    {% if chain_from %}
+    <div class="flex items-center gap-3 mb-4 bg-primary-container/30 rounded-full px-6 py-3 text-sm text-on-surface-variant">
+      <span class="material-symbols-outlined text-primary">link</span>
+      Chaining from <strong>{{ chain_from.title or chain_from.input_text[:40] }}</strong>
+    </div>
+    {% endif %}
+
+    <div class="flex items-center bg-surface-container-lowest rounded-full px-6 py-4 gap-4 shadow-[0_20px_32px_rgba(44,52,53,0.04)] border border-outline-variant/30 focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(11,106,106,0.1)] transition-all">
+      <span class="material-symbols-outlined text-outline">search</span>
+      <input id="smart-input" name="input_text" class="bg-transparent border-none focus:ring-0 text-base w-full font-body placeholder:text-outline" placeholder="What would you like to explore?" type="text" value="{{ chain_input or '' }}" required />
+      <span class="bg-primary-container text-on-primary-container text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap uppercase tracking-widest">Auto-Routing</span>
+    </div>
+
+    <!-- Council selector -->
+    <div class="flex items-center gap-3 mt-3 px-2">
+      <label class="flex items-center gap-2 px-4 py-2 rounded-full border border-outline-variant/40 cursor-pointer hover:bg-surface-container-low transition-all has-[:checked]:bg-primary-container has-[:checked]:border-primary/20 has-[:checked]:text-on-primary-container">
+        <input type="radio" name="council_type" value="selves" {% if forced_council_type == 'selves' %}checked{% endif %} class="hidden">
+        <span class="text-sm font-semibold">🪞 Selves</span>
+      </label>
+      <label class="flex items-center gap-2 px-4 py-2 rounded-full border border-outline-variant/40 cursor-pointer hover:bg-surface-container-low transition-all has-[:checked]:bg-primary-container has-[:checked]:border-primary/20 has-[:checked]:text-on-primary-container">
+        <input type="radio" name="council_type" value="idea" {% if (not forced_council_type and not suggested_council_type) or forced_council_type == 'idea' %}checked{% endif %} class="hidden">
+        <span class="text-sm font-semibold">⚔️ Idea</span>
+      </label>
+      <label class="flex items-center gap-2 px-4 py-2 rounded-full border border-outline-variant/40 cursor-pointer hover:bg-surface-container-low transition-all has-[:checked]:bg-primary-container has-[:checked]:border-primary/20 has-[:checked]:text-on-primary-container">
+        <input type="radio" name="council_type" value="innovation" {% if forced_council_type == 'innovation' %}checked{% endif %} class="hidden">
+        <span class="text-sm font-semibold">🔬 Lab</span>
+      </label>
+    </div>
+
+    {% if forced_template_id or suggested_template_id %}
+    <input type="hidden" name="template_id" value="{{ forced_template_id or suggested_template_id }}">
+    {% endif %}
+
+    <div class="mt-4 px-2">
+      <button type="submit" class="bg-primary text-on-primary rounded-full px-8 py-4 font-bold inline-flex items-center gap-2 hover:bg-primary-dim transition-all active:scale-95 shadow-lg">
+        <span class="material-symbols-outlined">rocket_launch</span>
+        Begin Deliberation
+      </button>
+    </div>
+  </form>
+</div>
+
+{% if not forced_council_type %}
+<!-- Council Cards (Bento Grid) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+  <!-- Council of Selves -->
+  <a href="/selves" class="bg-surface-container-lowest rounded-xl p-8 flex flex-col shadow-[0_40px_64px_rgba(44,52,53,0.04)] hover:shadow-[0_40px_64px_rgba(44,52,53,0.08)] transition-all group">
+    <div class="bg-primary-container p-3 rounded-full text-on-primary-container w-fit mb-4">
+      <span class="material-symbols-outlined">groups</span>
+    </div>
+    <h3 class="font-headline font-bold text-lg text-on-surface mb-1">Council of Selves</h3>
+    <p class="text-on-surface-variant text-sm leading-relaxed mb-4">Internal alignment and personal decision-making frameworks.</p>
+    <div class="mt-auto">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[10px] font-label text-outline uppercase tracking-widest">Alignment Score</span>
+        <span class="font-bold text-primary">84%</span>
+      </div>
+      <div class="h-1 bg-surface-variant rounded-full overflow-hidden">
+        <div class="h-full bg-primary w-[84%] rounded-full"></div>
+      </div>
+      <button class="mt-4 w-full text-center border border-outline-variant/40 rounded-full py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-low transition-all">Start Session</button>
+    </div>
+  </a>
+
+  <!-- Idea Council -->
+  <a href="/ideas" class="bg-surface-container-lowest rounded-xl p-8 flex flex-col shadow-[0_40px_64px_rgba(44,52,53,0.04)] hover:shadow-[0_40px_64px_rgba(44,52,53,0.08)] transition-all group">
+    <div class="bg-secondary-container p-3 rounded-full text-on-secondary-container w-fit mb-4">
+      <span class="material-symbols-outlined">lightbulb</span>
+    </div>
+    <h3 class="font-headline font-bold text-lg text-on-surface mb-1">Idea Council</h3>
+    <p class="text-on-surface-variant text-sm leading-relaxed mb-4">Creative expansion and unconstrained brainstorming sessions.</p>
+    <div class="mt-auto">
+      <div class="bg-surface-container-low rounded-lg p-3 text-center mb-3">
+        <span class="text-2xl font-bold text-secondary">12</span>
+        <span class="block text-[10px] text-outline font-label uppercase">Ideas Generated This Week</span>
+      </div>
+      <button class="w-full text-center border border-outline-variant/40 rounded-full py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-low transition-all">Start Session</button>
+    </div>
+  </a>
+
+  <!-- Innovation Council -->
+  <a href="/lab" class="bg-surface-container-lowest rounded-xl p-8 flex flex-col shadow-[0_40px_64px_rgba(44,52,53,0.04)] hover:shadow-[0_40px_64px_rgba(44,52,53,0.08)] transition-all group">
+    <div class="bg-tertiary-container p-3 rounded-full text-on-tertiary-fixed w-fit mb-4">
+      <span class="material-symbols-outlined">science</span>
+    </div>
+    <h3 class="font-headline font-bold text-lg text-on-surface mb-1">Innovation Council</h3>
+    <p class="text-on-surface-variant text-sm leading-relaxed mb-4">Practical application and systematic experiment testing.</p>
+    <div class="mt-auto">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[10px] font-label text-outline uppercase tracking-widest">Active</span>
+        <span class="font-bold text-tertiary">4</span>
+      </div>
+      <div class="text-sm text-on-surface-variant mb-3">
+        <span class="inline-block w-1.5 h-1.5 bg-tertiary rounded-full mr-1"></span> Micro-SaaS Prototype<br>
+        <span class="inline-block w-1.5 h-1.5 bg-tertiary rounded-full mr-1"></span> Bio-Feedback Loop
+      </div>
+      <button class="w-full text-center border border-outline-variant/40 rounded-full py-2 text-sm font-semibold text-on-surface hover:bg-surface-container-low transition-all">Start Session</button>
+    </div>
+  </a>
+</div>
+{% endif %}
+
+<!-- Recent Deliberations -->
+<div>
+  <div class="flex justify-between items-center mb-6">
+    <h3 class="text-2xl font-headline font-bold text-on-surface flex items-center gap-2">
+      <span class="material-symbols-outlined text-outline">schedule</span>
+      Recent Deliberations
+    </h3>
+    <a href="/sessions" class="text-primary font-bold text-sm hover:underline">View Full Archive</a>
+  </div>
+
+  <div class="space-y-4">
+    {% if recent_sessions %}
+      {% for session in recent_sessions %}
+      <a href="/sessions/{{ session.id }}" class="bg-surface-container-lowest rounded-lg p-5 flex items-center gap-6 shadow-[0_20px_32px_rgba(44,52,53,0.03)] hover:translate-x-1 transition-all block">
+        {% set meta = council_type_meta(session.council_type) %}
+        <div class="w-12 h-12 rounded-full {% if session.council_type == 'selves' %}bg-primary-fixed text-on-primary-fixed{% elif session.council_type == 'idea' %}bg-secondary-fixed text-on-secondary-fixed{% else %}bg-tertiary-container text-on-tertiary-fixed{% endif %} flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined">{% if session.council_type == 'selves' %}chat_bubble{% elif session.council_type == 'idea' %}lightbulb{% else %}science{% endif %}</span>
+        </div>
+        <div class="flex-grow min-w-0">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="bg-{% if session.council_type == 'selves' %}primary-container text-on-primary-container{% elif session.council_type == 'idea' %}secondary-container text-on-secondary-container{% else %}tertiary-container text-on-tertiary-fixed{% endif %} text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase">{{ session.council_type }}</span>
+            <span class="text-[11px] font-label text-outline">{{ session.created_at[:16] if session.created_at else '' }}</span>
+          </div>
+          <h5 class="font-bold text-on-surface truncate">{{ session.title or session.input_text[:60] }}</h5>
+        </div>
+        <div class="text-right shrink-0">
+          <span class="text-primary font-bold text-sm hover:underline">Open Insight →</span>
+        </div>
+      </a>
+      {% endfor %}
+    {% else %}
+      <div class="bg-surface-container-lowest rounded-lg p-8 text-center text-on-surface-variant">
+        <span class="material-symbols-outlined text-4xl text-outline block mb-3">forum</span>
+        <p>No deliberations yet. Start your first session above.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- FAB (Desktop) -->
+<a href="/" class="fixed bottom-8 right-8 hidden md:flex w-14 h-14 bg-primary text-on-primary rounded-full items-center justify-center shadow-xl hover:scale-110 transition-transform z-30">
+  <span class="material-symbols-outlined">edit</span>
+</a>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/smart-input.js"></script>
+{% endblock %}

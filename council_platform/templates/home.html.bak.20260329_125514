@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}Council Platform — What's on your mind?{% endblock %}
+
+{% block content %}
+<div class="page-home">
+  <header class="home-header">
+    <h1 class="home-title">
+      {% if council_label %}{{ council_label }}{% else %}What's on your<br><span class="text-teal">mind?</span>{% endif %}
+    </h1>
+    <p class="home-subtitle">
+      {% if council_prompt %}{{ council_prompt }}{% else %}The platform suggests the right council based on your input. You can always override.{% endif %}
+    </p>
+  </header>
+
+  <section class="smart-input-section">
+    <form method="post" action="/deliberate" id="deliberation-form">
+      {% if chain_from %}
+      <div class="chain-notice">
+        <span class="material-symbols-outlined">link</span>
+        <span>Chaining from <strong>{{ chain_from.title or chain_from.input_text[:40] }}</strong></span>
+      </div>
+      {% endif %}
+      
+      <div class="smart-input-wrapper">
+        <span class="material-symbols-outlined smart-input-icon">edit_note</span>
+        <textarea id="smart-input" name="input_text" class="smart-input" 
+          placeholder="{{ council_prompt or 'Type a question, idea, or theme to explore...' }}"
+          rows="3" required>{{ chain_input or '' }}</textarea>
+      </div>
+      
+      <div class="intent-row" id="intent-row">
+        <div class="intent-suggestion" id="intent-suggestion" style="display:none">
+          <span class="material-symbols-outlined">auto_awesome</span>
+          <span id="intent-text">Suggested: </span>
+          <button type="button" class="intent-btn" id="intent-accept">Use this council</button>
+        </div>
+      </div>
+      
+      <div class="council-selector">
+        <div class="council-selector-label">Select council:</div>
+        <div class="council-options" id="council-options">
+          <label class="council-option" data-type="selves">
+            <input type="radio" name="council_type" value="selves" {% if forced_council_type == 'selves' or suggested_council_type == 'selves' %}checked{% endif %}>
+            <span class="council-option-icon">🪞</span>
+            <span class="council-option-label">Selves</span>
+            <span class="council-option-sub">Inner dialogue</span>
+          </label>
+          <label class="council-option" data-type="idea">
+            <input type="radio" name="council_type" value="idea" {% if (not forced_council_type and not suggested_council_type) or forced_council_type == 'idea' or suggested_council_type == 'idea' %}checked{% endif %}>
+            <span class="council-option-icon">⚔️</span>
+            <span class="council-option-label">Ideas</span>
+            <span class="council-option-sub">Stress-test</span>
+          </label>
+          <label class="council-option" data-type="innovation">
+            <input type="radio" name="council_type" value="innovation" {% if forced_council_type == 'innovation' or suggested_council_type == 'innovation' %}checked{% endif %}>
+            <span class="council-option-icon">🔬</span>
+            <span class="council-option-label">Lab</span>
+            <span class="council-option-sub">Explore</span>
+          </label>
+        </div>
+      </div>
+      
+      {% if forced_template_id or suggested_template_id %}
+      <input type="hidden" name="template_id" value="{{ forced_template_id or suggested_template_id }}">
+      {% endif %}
+      
+      <button type="submit" class="begin-btn" id="begin-btn">
+        <span class="material-symbols-outlined">rocket_launch</span>
+        Begin Deliberation
+      </button>
+    </form>
+  </section>
+
+  {% if not forced_council_type %}
+  <section class="council-doors">
+    <div class="council-door door-selves" onclick="window.location='/selves'">
+      <div class="door-icon">🪞</div>
+      <div class="door-content">
+        <h3 class="door-title">The Chamber</h3>
+        <p class="door-question">"What do I actually want?"</p>
+        <p class="door-desc">Six inner parts examine a personal decision through structured inner dialogue.</p>
+        <div class="door-agents">The Engine · Inspector · Shield · Architect · Night Worker · Delegator</div>
+      </div>
+      <div class="door-enter">Enter →</div>
+    </div>
+    <div class="council-door door-ideas" onclick="window.location='/ideas'">
+      <div class="door-icon">⚔️</div>
+      <div class="door-content">
+        <h3 class="door-title">The Arena</h3>
+        <p class="door-question">"Is this idea any good?"</p>
+        <p class="door-desc">Five agents stress-test your proposal in parallel, then synthesise.</p>
+        <div class="door-agents">Prosecutor · Pivot Artist · Operator · Customer Voice · Contrarian</div>
+      </div>
+      <div class="door-enter">Enter →</div>
+    </div>
+    <div class="council-door door-lab" onclick="window.location='/lab'">
+      <div class="door-icon">🔬</div>
+      <div class="door-content">
+        <h3 class="door-title">The Lab</h3>
+        <p class="door-question">"What's hiding in this space?"</p>
+        <p class="door-desc">Two-phase: diverge then collide. Multi-model. Produces an Opportunity Map.</p>
+        <div class="door-agents">Archaeologist · Void Reader · Collision Artist · Anthropologist · Signal Hunter</div>
+      </div>
+      <div class="door-enter">Enter →</div>
+    </div>
+  </section>
+  {% endif %}
+  
+  {% if recent_sessions %}
+  <section class="recent-sessions">
+    <div class="section-header">
+      <h2 class="section-title">Recent Deliberations</h2>
+      <a href="/sessions" class="section-link">View all →</a>
+    </div>
+    <div class="sessions-list">
+      {% for session in recent_sessions %}
+      <a href="/sessions/{{ session.id }}" class="session-item">
+        <div class="session-badge badge-{{ session.council_type }}">
+          {{ council_type_meta(session.council_type).icon }}
+        </div>
+        <div class="session-info">
+          <div class="session-title">{{ session.title or session.input_text[:60] }}</div>
+          <div class="session-meta">
+            {{ council_type_meta(session.council_type).label }}
+            · {{ session.status }}
+            · {{ session.created_at[:10] if session.created_at else '' }}
+          </div>
+        </div>
+        <div class="session-arrow"><span class="material-symbols-outlined">chevron_right</span></div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+
+<button class="fab" onclick="document.getElementById('smart-input').focus(); document.getElementById('smart-input').scrollIntoView({behavior:'smooth'})">
+  <span class="material-symbols-outlined">add</span>
+</button>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/smart-input.js"></script>
+{% endblock %}

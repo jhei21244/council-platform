@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}All Sessions — Council Platform{% endblock %}
+
+{% block content %}
+<div class="sessions-page">
+  <h1>All Deliberations</h1>
+  
+  <!-- Filter tabs -->
+  <div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap">
+    <a href="/sessions" class="btn {% if not filter_type %}btn-chain{% else %}btn-outline{% endif %}" style="font-size:0.8rem">All</a>
+    <a href="/sessions?council_type=selves" class="btn {% if filter_type == 'selves' %}btn-chain{% else %}btn-outline{% endif %}" style="font-size:0.8rem">🪞 Selves</a>
+    <a href="/sessions?council_type=idea" class="btn {% if filter_type == 'idea' %}btn-chain{% else %}btn-outline{% endif %}" style="font-size:0.8rem">⚔️ Ideas</a>
+    <a href="/sessions?council_type=innovation" class="btn {% if filter_type == 'innovation' %}btn-chain{% else %}btn-outline{% endif %}" style="font-size:0.8rem">🔬 Lab</a>
+  </div>
+  
+  {% if sessions %}
+  <div class="sessions-list">
+    {% for session in sessions %}
+    <a href="/sessions/{{ session.id }}" class="session-item">
+      <div class="session-badge badge-{{ session.council_type }}">
+        {{ council_type_meta(session.council_type).icon }}
+      </div>
+      <div class="session-info">
+        <div class="session-title">{{ session.title or session.input_text[:60] }}</div>
+        <div class="session-meta">
+          {{ council_type_meta(session.council_type).label }}
+          · {{ session.status }}
+          · {{ session.created_at[:16] if session.created_at else '' }}
+        </div>
+      </div>
+      <div class="session-arrow">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="padding:3rem; text-align:center; color:var(--outline)">
+    <span class="material-symbols-outlined" style="font-size:3rem; display:block; margin-bottom:1rem">forum</span>
+    <p>No deliberations yet. Start one from the <a href="/">home page</a>.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

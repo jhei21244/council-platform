@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Custom Council Builder — Council Platform{% endblock %}
+
+{% block content %}
+<div class="builder-page">
+  <h1>Build Your Council</h1>
+  <p class="page-subtitle">Select 2-7 agents from the pool, set a mode, and save your custom council.</p>
+  
+  <div class="builder-layout">
+    <!-- Agent Pool (left) -->
+    <div class="builder-pool">
+      <h2>Agent Pool</h2>
+      {% for agent in agents %}
+      <div class="builder-agent" data-agent-id="{{ agent.id }}">
+        <span class="builder-agent-icon">{{ agent.icon or '🤖' }}</span>
+        <div>
+          <div class="builder-agent-name">{{ agent.name }}</div>
+          <div class="builder-agent-fn">{{ agent.cognitive_function }} · {{ agent.home_council }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    
+    <!-- Config Panel (right) -->
+    <div class="builder-config">
+      <h2>Your Council</h2>
+      
+      <form id="builder-form">
+        <label for="council-name">Council Name</label>
+        <input type="text" id="council-name" name="name" placeholder="My Launch Council" required>
+        
+        <label for="council-mode">Deliberation Mode</label>
+        <select id="council-mode" name="mode">
+          <option value="parallel">Parallel — agents work independently, then synthesis</option>
+          <option value="sequential">Sequential — each agent sees prior outputs</option>
+          <option value="dialogic">Dialogic — inner parts converse</option>
+        </select>
+        
+        <label for="council-desc">Description (optional)</label>
+        <input type="text" id="council-desc" name="description" placeholder="Pre-launch reality check">
+        
+        <label>Selected Agents</label>
+        <div class="selected-agents-list" id="selected-agents">
+          <span style="font-size:0.8rem;color:var(--outline)">Click agents on the left to add them</span>
+        </div>
+        
+        <input type="hidden" id="agent-ids-input" name="agent_ids" value="[]">
+        
+        <button type="submit" class="builder-save-btn" id="save-council-btn">Save Council</button>
+      </form>
+      
+      {% if saved_templates %}
+      <div style="margin-top:2rem; padding-top:1rem; border-top:1px solid var(--outline-variant)">
+        <h3 style="font-size:0.85rem; margin-bottom:0.75rem; color:var(--outline)">Saved Templates</h3>
+        {% for t in saved_templates %}
+        <div style="font-size:0.8rem; padding:0.4rem 0; color:var(--on-surface-variant)">
+          {{ t.icon or '🎛️' }} {{ t.name }} <span style="color:var(--outline)">({{ t.mode }})</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/builder.js"></script>
+{% endblock %}

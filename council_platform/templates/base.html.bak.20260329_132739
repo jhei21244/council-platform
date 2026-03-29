@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Council Platform{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#0b6a6a",
+            "primary-dim": "#005d5d",
+            "primary-container": "#a2f0f0",
+            "on-primary": "#e0fffe",
+            "on-primary-container": "#005c5c",
+            "background": "#f8fafa",
+            "surface": "#ffffff",
+            "surface-container": "#eaefef",
+            "surface-container-low": "#f0f4f4",
+            "surface-container-high": "#e3e9ea",
+            "surface-container-lowest": "#ffffff",
+            "on-background": "#2c3435",
+            "on-surface": "#2c3435",
+            "on-surface-variant": "#596061",
+            "outline": "#757c7d",
+            "outline-variant": "#acb3b4",
+            "secondary": "#4958ac",
+            "tertiary": "#3a647d",
+            "error": "#a83836",
+          },
+          fontFamily: {
+            "headline": ["Plus Jakarta Sans", "sans-serif"],
+            "body": ["Plus Jakarta Sans", "sans-serif"],
+            "label": ["Inter", "sans-serif"],
+          },
+          borderRadius: {
+            "DEFAULT": "1rem",
+            "sm": "0.5rem",
+            "md": "0.75rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "full": "9999px",
+          },
+        },
+      },
+    }
+  </script>
+  <link rel="stylesheet" href="/static/css/style.css">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-background text-on-background min-h-screen">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">
+        <span class="material-symbols-outlined" style="font-size:1.25rem;color:#0b6a6a">account_balance</span>
+      </div>
+      <div>
+        <div class="brand-name">Council Platform</div>
+        <div class="brand-sub">Multi-agent deliberation</div>
+      </div>
+    </div>
+
+    <!-- New Session CTA -->
+    <div class="sidebar-cta-wrap">
+      <a href="/" class="sidebar-new-btn">
+        <span class="material-symbols-outlined" style="font-size:1.1rem">add</span>
+        New Session
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">MODE</div>
+      <a href="/" class="nav-item {% if page == 'home' %}active{% endif %}">
+        <span class="material-symbols-outlined">home</span><span>Platform Home</span>
+      </a>
+      <a href="/selves" class="nav-item nav-selves {% if page == 'selves' %}active{% endif %}">
+        <span class="material-symbols-outlined">self_improvement</span><span>Council of Selves</span>
+      </a>
+      <a href="/ideas" class="nav-item nav-ideas {% if page == 'ideas' %}active{% endif %}">
+        <span class="material-symbols-outlined">lightbulb</span><span>Idea Council</span>
+      </a>
+      <a href="/lab" class="nav-item nav-lab {% if page == 'lab' %}active{% endif %}">
+        <span class="material-symbols-outlined">science</span><span>Innovation Lab</span>
+      </a>
+      <a href="/builder" class="nav-item nav-custom {% if page == 'builder' %}active{% endif %}">
+        <span class="material-symbols-outlined">tune</span><span>Custom Council</span>
+      </a>
+      <div class="nav-divider"></div>
+      <div class="nav-section-label">EXPLORE</div>
+      <a href="/agents" class="nav-item {% if page == 'agents' %}active{% endif %}">
+        <span class="material-symbols-outlined">group_work</span><span>Agent Pool</span>
+      </a>
+      <a href="/sessions" class="nav-item {% if page == 'sessions' %}active{% endif %}">
+        <span class="material-symbols-outlined">history</span><span>All Sessions</span>
+      </a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Mobile Nav -->
+  <nav class="mobile-nav">
+    <a href="/" class="mobile-nav-item {% if page == 'home' %}active{% endif %}">
+      <span class="material-symbols-outlined">home</span><span>Home</span>
+    </a>
+    <a href="/selves" class="mobile-nav-item {% if page == 'selves' %}active{% endif %}">
+      <span class="material-symbols-outlined">self_improvement</span><span>Selves</span>
+    </a>
+    <a href="/ideas" class="mobile-nav-item {% if page == 'ideas' %}active{% endif %}">
+      <span class="material-symbols-outlined">lightbulb</span><span>Ideas</span>
+    </a>
+    <a href="/lab" class="mobile-nav-item {% if page == 'lab' %}active{% endif %}">
+      <span class="material-symbols-outlined">science</span><span>Lab</span>
+    </a>
+    <a href="/sessions" class="mobile-nav-item {% if page == 'sessions' %}active{% endif %}">
+      <span class="material-symbols-outlined">history</span><span>History</span>
+    </a>
+  </nav>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>
